@@ -24,6 +24,7 @@ function test() {
 function remove() {
     pushd ..
     Remove-Item dict -Recurse
+    del migemo.dll
     del cmigemo-default-win64-20110227.zip
     del output.txt
     popd
