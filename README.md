@@ -8,6 +8,8 @@
 - migemoモード --migemo
 - 文字コード指定 --encode （utf_8 や cp932 を選べます）
 - 行数や桁数を指定 --width, --height
+- 背景アルファ値を指定 --alpha （0.9 等を選べます）
+- ダークモード自動判別
 
 # Requirement
 - Windows 64bit

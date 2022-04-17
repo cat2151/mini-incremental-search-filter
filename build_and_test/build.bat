@@ -17,7 +17,7 @@ function install_migemo() {
 
 function test() {
     pushd miniIncrementalSearchFilter
-    cmd /c miniIncrementalSearchFilter.exe ..\..\src\miniIncrementalSearchFilter.py output.txt
+    cmd /c miniIncrementalSearchFilter.exe ..\..\src\miniIncrementalSearchFilter.py output.txt --alpha 0.9
     popd
 }
 

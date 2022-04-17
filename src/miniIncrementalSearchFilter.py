@@ -6,6 +6,7 @@ import re
 import argparse
 import cmigemo
 import sys
+import winreg
 
 # インクリメンタルサーチで絞り込む
 def inputArea_onChange(event):
@@ -96,6 +97,8 @@ class ModifiedEntry(tk.Entry):
 
 def inputArea_init(uiRoot, args):
     inputArea = ModifiedEntry(uiRoot, width=args.width)
+    if isWindowsDarkMode():
+        inputArea.configure(fg = '#F8F8F2', bg = '#272822')
     inputArea.grid()
     inputArea.bind("<<TextModified>>", inputArea_onChange)
     inputArea.bind('<Key-Up>', listbox_selection_up)
@@ -134,6 +137,8 @@ def listbox_focusIn(event):
 
 def listBox_init(uiRoot, args):
     listBox = tk.Listbox(uiRoot, width=args.width, height=args.height)
+    if isWindowsDarkMode():
+        listBox.configure(fg = '#F8F8F2', bg = '#272822')
     listBox.grid()
     listBox.bind('<FocusIn>', listbox_focusIn)
     listBox_ini2(listBox)
@@ -164,6 +169,15 @@ def ui_exitByEnterKey(event):
         uiRoot.title("Did not hit!")
     sys.exit()
 
+def isWindowsDarkMode():
+    key = winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")
+    data, regtype = winreg.QueryValueEx(key, "AppsUseLightTheme")
+    winreg.CloseKey(key)
+    if data == 0:
+        return True
+    else:
+        return False
+
 def parseArg():
     parser = argparse.ArgumentParser()
     parser.add_argument('input')
@@ -175,6 +189,7 @@ def parseArg():
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--width', default=80, type=int)
     parser.add_argument('--height', default=10, type=int)
+    parser.add_argument('--alpha', default=1, type=float)
     args = parser.parse_args()
     return args
 
@@ -187,6 +202,8 @@ g_lineNumber = 0
 matchedIndexList = []
 
 uiRoot = tk.Tk()
+if args.alpha:
+    uiRoot.attributes("-alpha", args.alpha)
 inputArea = inputArea_init(uiRoot, args)
 listBox = listBox_init(uiRoot, args)
 
