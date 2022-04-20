@@ -26,11 +26,7 @@ def inputArea_onChange(event):
     listBox.delete(0, 'end')
     for line in filtered:
         listBox.insert('end', line)
-    if len(filtered) >= g_lineNumber:
-        listBox.select_set(g_lineNumber)
-    else:
-        # 最後尾等を選んでいて、絞り込み結果で最後尾が空行になった場合等に、最終行を選択しなおす（選択が消えると見た目がわかりづらいので）
-        listBox.select_set(len(filtered) - 1)
+    listBox.select_set(0)
 
 # patternsの個数ぶん絞り込む
 def createMultiFilteredLines(patterns, lines):
@@ -82,6 +78,14 @@ def writeFileFromLine(filename, line):
         f.write(line)
         f.write("\r")
         f.write("\n")
+
+# window全体用
+def uiRoot_init(args):
+    uiRoot = tk.Tk()
+    uiRoot.title(args.title)
+    if args.alpha:
+        uiRoot.attributes("-alpha", args.alpha)
+    return uiRoot
 
 # inputArea用
 class ModifiedEntry(tk.Entry):
@@ -154,19 +158,15 @@ def listBox_ini2(listBox):
     listBox.select_set(0)
 
 def ui_exitByEsc(event):
-    uiRoot.title("Escape!")
     sys.exit()
 
 def ui_exitByEnterKey(event):
     if len(matchedIndexList):
-        uiRoot.title("OK!")
         lineNumber = matchedIndexList[listBox.curselection()[0]]
         line = listBox.selection_get()
         printAtDebug(lineNumber)
         printAtDebug(line)
         writeFileFromLine(args.output, line)
-    else:
-        uiRoot.title("Did not hit!")
     sys.exit()
 
 def isWindowsDarkMode():
@@ -190,6 +190,7 @@ def parseArg():
     parser.add_argument('--width', default=80, type=int)
     parser.add_argument('--height', default=10, type=int)
     parser.add_argument('--alpha', default=1, type=float)
+    parser.add_argument('--title', default='mini incremental search filter')
     args = parser.parse_args()
     return args
 
@@ -200,17 +201,14 @@ lines = readFileToLines(args.input)
 printAtDebug(lines)
 g_lineNumber = 0
 matchedIndexList = []
-
-uiRoot = tk.Tk()
-if args.alpha:
-    uiRoot.attributes("-alpha", args.alpha)
-inputArea = inputArea_init(uiRoot, args)
-listBox = listBox_init(uiRoot, args)
-
 if args.migemo:
     migemo = cmigemo.Migemo(args.migemo)
     if migemo.query('hoge') == 'hoge': # roma2hira.dat が読めない、シンボリックリンク実体が日本語名ディレクトリにある等、いろいろな原因がありうる。思ったように動かない原因が何かわからない状態より、問題があればすぐ動作を停止して問題があることを明確にするほうを優先する。
         writeFileFromLine("miniIncrementalSearchFilter_error.log", "migemo init error") # 用途の都合で、標準出力等を得られないことが多いため、苦肉の策
         sys.exit(1)
+
+uiRoot = uiRoot_init(args)
+inputArea = inputArea_init(uiRoot, args)
+listBox = listBox_init(uiRoot, args)
 
 uiRoot.mainloop()
